@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stealth Design Mail</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#f2f2f2,#e8e8e8);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 95%;
+    max-width: 700px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+textarea {
+    width: 100%;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 8px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background: black;
+    color: white;
+    cursor: pointer;
+}
+
+.output {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    display: none;
+}
+
+.meta {
+    font-size: 13px;
+    color: #777;
+}
+
+.email {
+    line-height: 1.75;
+    color: #444;
+}
+
+.copyBtn {
+    margin-top: 10px;
+    background: #444;
+}
+
+.decoder {
+    margin-top: 25px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Stealth Email Generator</h2>
+
+    <label>Hidden Message</label>
+    <textarea id="secret"></textarea>
+
+    <label>Password (optional)</label>
+    <textarea id="password"></textarea>
+
+    <button onclick="generate()">Generate Email</button>
+
+    <div class="output" id="output"></div>
+    <button class="copyBtn" onclick="copyEmail()">Copy Email</button>
+
+    <div class="decoder">
+        <h3>Decoder</h3>
+        <textarea id="decodeInput" placeholder="Paste email..."></textarea>
+        <textarea id="decodePass" placeholder="Password (if used)"></textarea>
+        <button onclick="decode()">Decode</button>
+        <div id="decodedText"></div>
+    </div>
+</div>
+
+<script>
+const ZWSP="\u200B"; 
+const ZWNJ="\u200C";
+
+function encrypt(text, pass){
+    if(!pass) return text;
+    let res="";
+    for(let i=0;i<text.length;i++){
+        res+=String.fromCharCode(text.charCodeAt(i)^pass.charCodeAt(i%pass.length));
+    }
+    return res;
+}
+
+function encode(msg, pass){
+    msg = encrypt(msg, pass);
+
+    let binary="";
+    for(let c of msg){
+        binary+=c.charCodeAt(0).toString(2).padStart(8,"0");
+    }
+
+    let zw="";
+    for(let b of binary){
+        zw += b==="0"?ZWSP:ZWNJ;
+    }
+
+    return zw;
+}
+
+function decodeMessage(text, pass){
+    let bits="";
+    for(let c of text){
+        if(c===ZWSP) bits+="0";
+        if(c===ZWNJ) bits+="1";
+    }
+
+    let res="";
+    for(let i=0;i<bits.length;i+=8){
+        let byte=bits.substr(i,8);
+        if(byte.length===8){
+            res+=String.fromCharCode(parseInt(byte,2));
+        }
+    }
+
+    return encrypt(res, pass);
+}
+
+// 🔥 RANDOMIZED EMAIL TEMPLATES
+const templates = [
+`I've been revisiting a lot of layout structures recently, especially focusing on how spacing and rhythm influence perception. Small shifts in alignment seem to completely change the tone of a composition.
+
+Lately I’ve also been working with quieter typography systems, trying to rely less on contrast and more on subtle hierarchy through spacing and positioning.
+
+I’ve also been exploring depth through layering. Even minimal elements start to feel richer when there's a sense of dimension built into the structure.
+
+Consistency across interactions has also been a big focus. Tightening those small details really changes the overall feel.`,
+
+`Recently I’ve been diving deeper into grid systems and how they adapt across different screen sizes. It’s interesting how flexibility and structure can coexist if handled carefully.
+
+Typography-wise, I’ve been leaning toward softer transitions between weights and sizes rather than sharp contrasts. It feels more controlled and less aggressive visually.
+
+I’ve also been experimenting with visual balance through asymmetry. It adds a bit more character without making things feel chaotic.
+
+Trying to keep everything cohesive while still allowing room for variation has been the main challenge.`,
+
+`I’ve been looking into more minimal interface directions lately, stripping things down to only what’s necessary and letting spacing do most of the work.
+
+There’s something interesting about how restraint can actually make designs feel more confident rather than empty.
+
+I’ve also been exploring material-inspired visuals, especially how textures can be subtly translated into digital form.
+
+Refining interaction consistency is still ongoing, especially making transitions feel natural and not forced.`
+];
+
+function generate(){
+    let msg=document.getElementById("secret").value.trim();
+    let pass=document.getElementById("password").value;
+
+    if(!msg) return alert("Enter message");
+
+    let hidden = encode(msg, pass);
+
+    // pick random template
+    let text = templates[Math.floor(Math.random() * templates.length)];
+
+    let finalText="";
+    let j=0;
+
+    for(let i=0;i<text.length;i++){
+        finalText+=text[i];
+        if(j<hidden.length && Math.random()<0.12){
+            finalText+=hidden[j++];
+        }
+    }
+
+    finalText+=hidden.slice(j);
+
+    const email=`
+<div class="email">
+<div class="meta">From: studio.flow@designmail.com</div>
+<div class="meta">Subject: Direction Update</div>
+
+<p>${finalText}</p>
+
+<p>Let me know your thoughts when you get time.</p>
+</div>
+`;
+
+    let out=document.getElementById("output");
+    out.innerHTML=email;
+    out.style.display="block";
+}
+
+function decode(){
+    let text=document.getElementById("decodeInput").value;
+    let pass=document.getElementById("decodePass").value;
+
+    let decoded=decodeMessage(text, pass);
+
+    document.getElementById("decodedText").innerText="Decoded: "+decoded;
+}
+
+function copyEmail(){
+    let el=document.getElementById("output");
+    let range=document.createRange();
+    range.selectNode(el);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    document.execCommand("copy");
+    alert("Copied!");
+}
+</script>
+
+</body>
+</html>

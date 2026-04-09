@@ -3,100 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stealth Design Mail</title>
+<title>Email HA</title>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#f2f2f2,#e8e8e8);
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0b0f19;
+    color: #e5e7eb;
 }
 
-.container {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    width: 95%;
-    max-width: 700px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+/* Layout */
+.wrapper {
+    max-width: 720px;
+    margin: auto;
+    padding: 20px 16px 40px;
 }
 
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    font-size: 22px;
+    margin: 0;
+}
+
+.header p {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-top: 5px;
+}
+
+/* Card sections */
+.card {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+/* Labels */
+label {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* Inputs */
 textarea {
     width: 100%;
-    border-radius: 8px;
-    padding: 10px;
-    margin-top: 8px;
-    border: 1px solid #ccc;
+    margin-top: 6px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #1f2937;
+    background: #0b0f19;
+    color: #e5e7eb;
+    font-size: 14px;
+    resize: none;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 button {
-    width: 100%;
+    flex: 1;
     padding: 12px;
-    margin-top: 10px;
+    border-radius: 10px;
     border: none;
-    border-radius: 8px;
-    background: black;
-    color: white;
     cursor: pointer;
+    font-size: 14px;
 }
 
+.primary {
+    background: #4f46e5;
+    color: white;
+}
+
+.primary:hover {
+    background: #4338ca;
+}
+
+.secondary {
+    background: #1f2937;
+    color: #e5e7eb;
+}
+
+.secondary:hover {
+    background: #374151;
+}
+
+/* Output email */
 .output {
-    margin-top: 20px;
-    padding: 15px;
-    background: #fafafa;
-    border-radius: 10px;
-    border: 1px solid #eee;
     display: none;
 }
 
 .meta {
-    font-size: 13px;
-    color: #777;
+    font-size: 12px;
+    color: #9ca3af;
 }
 
 .email {
-    line-height: 1.75;
-    color: #444;
-}
-
-.copyBtn {
     margin-top: 10px;
-    background: #444;
+    line-height: 1.65;
+    color: #d1d5db;
 }
 
-.decoder {
-    margin-top: 25px;
+.email p {
+    margin-bottom: 12px;
+}
+
+/* Decoder */
+.decoder-title {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #e5e7eb;
+}
+
+.result {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #22c55e;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .header h1 {
+        font-size: 20px;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-    <h2>Stealth Email Generator</h2>
+<div class="wrapper">
 
-    <label>Hidden Message</label>
-    <textarea id="secret"></textarea>
-
-    <label>Password (optional)</label>
-    <textarea id="password"></textarea>
-
-    <button onclick="generate()">Generate Email</button>
-
-    <div class="output" id="output"></div>
-    <button class="copyBtn" onclick="copyEmail()">Copy Email</button>
-
-    <div class="decoder">
-        <h3>Decoder</h3>
-        <textarea id="decodeInput" placeholder="Paste email..."></textarea>
-        <textarea id="decodePass" placeholder="Password (if used)"></textarea>
-        <button onclick="decode()">Decode</button>
-        <div id="decodedText"></div>
+    <div class="header">
+        <h1>Email HA</h1>
+        <p>Generate natural emails with embedded context</p>
     </div>
+
+    <!-- Input -->
+    <div class="card">
+        <label>Hidden Message</label>
+        <textarea id="secret" rows="3" placeholder="Type your hidden message..."></textarea>
+
+        <label>Password (optional)</label>
+        <textarea id="password" rows="2" placeholder="Optional password"></textarea>
+
+        <div class="button-group">
+            <button class="primary" onclick="generate()">Generate</button>
+            <button class="secondary" onclick="copyEmail()">Copy</button>
+        </div>
+    </div>
+
+    <!-- Output -->
+    <div class="card output" id="output"></div>
+
+    <!-- Decoder -->
+    <div class="card">
+        <div class="decoder-title">Decoder</div>
+
+        <textarea id="decodeInput" rows="4" placeholder="Paste email here..."></textarea>
+        <textarea id="decodePass" rows="2" placeholder="Password"></textarea>
+
+        <button class="primary" onclick="decode()">Decode</button>
+
+        <div class="result" id="decodedText"></div>
+    </div>
+
 </div>
 
 <script>
@@ -146,32 +237,33 @@ function decodeMessage(text, pass){
     return encrypt(res, pass);
 }
 
-// 🔥 RANDOMIZED EMAIL TEMPLATES
-const templates = [
-`I've been revisiting a lot of layout structures recently, especially focusing on how spacing and rhythm influence perception. Small shifts in alignment seem to completely change the tone of a composition.
-
-Lately I’ve also been working with quieter typography systems, trying to rely less on contrast and more on subtle hierarchy through spacing and positioning.
-
-I’ve also been exploring depth through layering. Even minimal elements start to feel richer when there's a sense of dimension built into the structure.
-
-Consistency across interactions has also been a big focus. Tightening those small details really changes the overall feel.`,
-
-`Recently I’ve been diving deeper into grid systems and how they adapt across different screen sizes. It’s interesting how flexibility and structure can coexist if handled carefully.
-
-Typography-wise, I’ve been leaning toward softer transitions between weights and sizes rather than sharp contrasts. It feels more controlled and less aggressive visually.
-
-I’ve also been experimenting with visual balance through asymmetry. It adds a bit more character without making things feel chaotic.
-
-Trying to keep everything cohesive while still allowing room for variation has been the main challenge.`,
-
-`I’ve been looking into more minimal interface directions lately, stripping things down to only what’s necessary and letting spacing do most of the work.
-
-There’s something interesting about how restraint can actually make designs feel more confident rather than empty.
-
-I’ve also been exploring material-inspired visuals, especially how textures can be subtly translated into digital form.
-
-Refining interaction consistency is still ongoing, especially making transitions feel natural and not forced.`
+const paragraphPool = [
+"Recently I’ve been exploring how spacing systems influence readability across different layouts.",
+"I’ve been experimenting with quieter typography systems and subtle hierarchy shifts.",
+"Layering has been a big focus, especially how depth can enhance minimal compositions.",
+"I’ve been refining interaction consistency across different screens.",
+"Lately I’ve been drawn toward more restrained and controlled design approaches.",
+"I’ve been testing asymmetry to create more dynamic visual balance.",
+"I’ve been refining micro-interactions and small transitions.",
+"I’ve been exploring material-inspired elements in digital layouts.",
+"I keep focusing on consistency across scaling systems.",
+"I’ve been building modular systems that adapt flexibly."
 ];
+
+function shuffle(arr){
+    return arr.sort(()=>Math.random()-0.5);
+}
+
+function insertHidden(text, hidden, state){
+    let result="";
+    for(let i=0;i<text.length;i++){
+        result+=text[i];
+        if(state.index < hidden.length && Math.random()<0.12){
+            result+=hidden[state.index++];
+        }
+    }
+    return result;
+}
 
 function generate(){
     let msg=document.getElementById("secret").value.trim();
@@ -181,28 +273,23 @@ function generate(){
 
     let hidden = encode(msg, pass);
 
-    // pick random template
-    let text = templates[Math.floor(Math.random() * templates.length)];
+    let selected = shuffle([...paragraphPool]).slice(0,5);
+    let state = {index:0};
 
-    let finalText="";
-    let j=0;
+    let paragraphs = selected.map(p => 
+        `<p>${insertHidden(p, hidden, state)}</p>`
+    ).join("");
 
-    for(let i=0;i<text.length;i++){
-        finalText+=text[i];
-        if(j<hidden.length && Math.random()<0.12){
-            finalText+=hidden[j++];
-        }
+    if(state.index < hidden.length){
+        paragraphs += hidden.slice(state.index);
     }
 
-    finalText+=hidden.slice(j);
-
-    const email=`
-<div class="email">
+    const email = `
 <div class="meta">From: studio.flow@designmail.com</div>
 <div class="meta">Subject: Direction Update</div>
 
-<p>${finalText}</p>
-
+<div class="email">
+${paragraphs}
 <p>Let me know your thoughts when you get time.</p>
 </div>
 `;
@@ -217,7 +304,6 @@ function decode(){
     let pass=document.getElementById("decodePass").value;
 
     let decoded=decodeMessage(text, pass);
-
     document.getElementById("decodedText").innerText="Decoded: "+decoded;
 }
 
@@ -228,7 +314,6 @@ function copyEmail(){
     window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
     document.execCommand("copy");
-    alert("Copied!");
 }
 </script>
 
